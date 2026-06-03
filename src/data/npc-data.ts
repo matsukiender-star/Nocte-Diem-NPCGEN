@@ -302,26 +302,30 @@ function generateAbilities(klass?: string, power?: string): Abilities {
 
   // Ajustes de límites mínimos y aleatoriedad según el nivel de poder
   if (power === "Legendario") {
-    // Stat principal entre 18 y 20 de forma aleatoria, mínimo 18
-    result[primary] = Math.min(20, Math.max(18, result[primary]! + 4));
+    // Stat principal entre 18 y 20
+    result[primary] = 18 + Math.floor(Math.random() * 3);
     stats.forEach(s => {
       if (s !== primary) {
-        // Otras stats entre 16 y 20 de forma aleatoria, mínimo 16
-        result[s] = Math.min(20, Math.max(16, result[s]! + 4));
+        // Otras stats entre 16 y 19
+        result[s] = 16 + Math.floor(Math.random() * 4);
       }
     });
   } else if (power === "Élite") {
-    result[primary] = Math.min(18, Math.max(15, result[primary]! + 2));
+    // Stat principal entre 15 y 18
+    result[primary] = 15 + Math.floor(Math.random() * 4);
     stats.forEach(s => {
       if (s !== primary) {
-        result[s] = Math.min(18, Math.max(12, result[s]! + 2));
+        // Otras stats entre 12 y 15
+        result[s] = 12 + Math.floor(Math.random() * 4);
       }
     });
   } else if (power === "Competente") {
-    result[primary] = Math.min(16, Math.max(12, result[primary]! + 1));
+    // Stat principal entre 12 y 15
+    result[primary] = 12 + Math.floor(Math.random() * 4);
     stats.forEach(s => {
       if (s !== primary) {
-        result[s] = Math.min(16, Math.max(10, result[s]! + 1));
+        // Otras stats entre 10 y 13
+        result[s] = 10 + Math.floor(Math.random() * 4);
       }
     });
   }
