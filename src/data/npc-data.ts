@@ -218,9 +218,9 @@ export const PRESETS: Record<string, Preset> = {
   "5e Genérico": {
     blurb: "Aventura de fantasía clásica.",
     lineageLabel: "Raza",
-    classLabel: "Clase / Ocupación",
+    classLabel: "Clase",
     races: ["Humano","Elfo","Enano","Tiefling","Semiorco","Mediano","Dracónido","Gnomo"],
-    classes: ["Guerrero","Mago","Pícaro","Clérigo","Noble","Mercader","Criminal","Erudito"],
+    classes: ["Bárbaro", "Bardo", "Clérigo", "Druida", "Guerrero", "Monje", "Paladín", "Explorador", "Pícaro", "Hechicero", "Brujo", "Mago"],
     nameStyle: "fantasy",
     tone: "fantasía épica clásica de Dungeons & Dragons.",
     defaultTags: []
@@ -262,21 +262,25 @@ function roll4d6dl(): number {
 
 function getPrimaryStatForClass(klass: string): keyof Abilities {
   const k = klass.toLowerCase();
-  if (k.includes("guerrero") || k.includes("bárbaro") || k.includes("barbaro") || k.includes("paladín") || k.includes("paladin") || k.includes("caballero") || k.includes("fighter") || k.includes("barbarian") || k.includes("warrior") || k.includes("monk") || k.includes("monje")) return "FUE";
-  if (k.includes("mago") || k.includes("hechicero") || k.includes("brujo") || k.includes("erudito") || k.includes("científico") || k.includes("cientifico") || k.includes("hacker") || k.includes("wizard") || k.includes("sorcerer") || k.includes("warlock") || k.includes("scholar") || k.includes("artificer") || k.includes("artificiero")) return "INT";
-  if (k.includes("pícaro") || k.includes("picaro") || k.includes("criminal") || k.includes("asesino") || k.includes("ladrón") || k.includes("ladron") || k.includes("piloto") || k.includes("rogue") || k.includes("assassin") || k.includes("ranger") || k.includes("explorador") || k.includes("hunter") || k.includes("cazador")) return "DES";
+  if (k.includes("guerrero") || k.includes("bárbaro") || k.includes("barbaro") || k.includes("paladín") || k.includes("paladin") || k.includes("caballero") || k.includes("fighter") || k.includes("barbarian") || k.includes("warrior")) return "FUE";
+  if (k.includes("mago") || k.includes("erudito") || k.includes("científico") || k.includes("cientifico") || k.includes("hacker") || k.includes("wizard") || k.includes("scholar") || k.includes("artificer") || k.includes("artificiero")) return "INT";
+  if (k.includes("pícaro") || k.includes("picaro") || k.includes("criminal") || k.includes("asesino") || k.includes("ladrón") || k.includes("ladron") || k.includes("monje") || k.includes("monk") || k.includes("piloto") || k.includes("rogue") || k.includes("assassin") || k.includes("ranger") || k.includes("explorador") || k.includes("hunter") || k.includes("cazador")) return "DES";
   if (k.includes("clérigo") || k.includes("clerigo") || k.includes("sacerdote") || k.includes("druida") || k.includes("sabio") || k.includes("cleric") || k.includes("druid") || k.includes("priest")) return "SAB";
-  if (k.includes("noble") || k.includes("mercader") || k.includes("bardo") || k.includes("diplomático") || k.includes("diplomatico") || k.includes("comerciante") || k.includes("bard") || k.includes("merchant")) return "CAR";
+  if (k.includes("bardo") || k.includes("bard") || k.includes("hechicero") || k.includes("sorcerer") || k.includes("brujo") || k.includes("warlock") || k.includes("noble") || k.includes("mercader") || k.includes("diplomático") || k.includes("diplomatico") || k.includes("comerciante") || k.includes("merchant")) return "CAR";
   
   const standard: Record<string, keyof Abilities> = {
-    "Guerrero": "FUE",
-    "Mago": "INT",
-    "Pícaro": "DES",
+    "Bárbaro": "FUE",
+    "Bardo": "CAR",
     "Clérigo": "SAB",
-    "Noble": "CAR",
-    "Mercader": "CAR",
-    "Criminal": "DES",
-    "Erudito": "INT"
+    "Druida": "SAB",
+    "Guerrero": "FUE",
+    "Monje": "DES",
+    "Paladín": "FUE",
+    "Explorador": "DES",
+    "Pícaro": "DES",
+    "Hechicero": "CAR",
+    "Brujo": "CAR",
+    "Mago": "INT"
   };
   return standard[klass] || "INT";
 }
@@ -296,26 +300,28 @@ function generateAbilities(klass?: string, power?: string): Abilities {
     result[stat] = remainingRolls[idx];
   });
 
-  // Ajustar límites mínimos según el nivel de poder
+  // Ajustes de límites mínimos y aleatoriedad según el nivel de poder
   if (power === "Legendario") {
-    result[primary] = Math.max(18, result[primary]!);
+    // Stat principal entre 18 y 20 de forma aleatoria, mínimo 18
+    result[primary] = Math.min(20, Math.max(18, result[primary]! + 4));
     stats.forEach(s => {
       if (s !== primary) {
-        result[s] = Math.max(16, result[s]!);
+        // Otras stats entre 16 y 20 de forma aleatoria, mínimo 16
+        result[s] = Math.min(20, Math.max(16, result[s]! + 4));
       }
     });
   } else if (power === "Élite") {
-    result[primary] = Math.max(15, result[primary]!);
+    result[primary] = Math.min(18, Math.max(15, result[primary]! + 2));
     stats.forEach(s => {
       if (s !== primary) {
-        result[s] = Math.max(12, result[s]!);
+        result[s] = Math.min(18, Math.max(12, result[s]! + 2));
       }
     });
   } else if (power === "Competente") {
-    result[primary] = Math.max(12, result[primary]!);
+    result[primary] = Math.min(16, Math.max(12, result[primary]! + 1));
     stats.forEach(s => {
       if (s !== primary) {
-        result[s] = Math.max(10, result[s]!);
+        result[s] = Math.min(16, Math.max(10, result[s]! + 1));
       }
     });
   }
@@ -366,9 +372,49 @@ function makeName(nameStyle: string, race: string): string {
   return pick(set.first) + " " + pick(set.last);
 }
 
+const raceVisuals: Record<string, { build?: string[]; hair?: string[]; eyes?: string[] }> = {
+  "Semiorco": {
+    build: ["compacta y poderosa", "ancha y barriluda", "fibrosa e inquieta", "rechoncha y llena de cicatrices"],
+    hair: ["rizos negros muy cortos", "cabeza calva con cicatrices de combate", "una trenza de guerrero gruesa y oscura", "cabello áspero de color gris oscuro", "ningún cabello bajo un casco abollado"],
+    eyes: ["ojos negros brillantes y vigilantes", "ojos pequeños y rojizos de mirada torva", "ojos amarillentos y penetrantes", "ojos oscuros bajo un ceño espeso"]
+  },
+  "Dracónido": {
+    build: ["compacta y poderosa", "alta y encorvada", "ancha y barriluda"],
+    hair: ["una cresta de cuernos cortos", "espinas óseas peinadas hacia atrás", "una hilera de placas gruesas en la cabeza", "una gola de escamas gruesas", "dos cuernos largos y curvados"],
+    eyes: ["ojos ámbar profundamente hundidos", "ojos del oro opaco de las monedas viejas", "ojos de reptil que brillan con fuego interno", "ojos dorados de párpados gruesos"]
+  },
+  "Enano": {
+    build: ["compacta y poderosa", "ancha y barriluda", "rechoncha y llena de cicatrices"],
+    hair: ["una larga trenza con aros de cobre", "una barba bifurcada muy larga y cabello castaño", "cabello gris ceniza cortado al ras", "ningún cabello salvo una barba trenzada de color rojo cobrizo", "rizos castaño rojizo salvajes"],
+    eyes: ["ojos grises que nunca terminan de posarse", "ojos ámbar profundamente hundidos", "un ojo ciego lechoso y uno verde agudo", "ojos negros brillantes y vigilantes"]
+  },
+  "Elfo": {
+    build: ["menuda, casi etérea", "esbelta y grácil", "enjuta y larguirucha"],
+    hair: ["una mata rebelde de cabello blanco plateado", "cabello negro recogido con severidad", "un enredo de cabello rubio pajizo largo", "cabello castaño cobrizo largo y sedoso", "cabello verde musgo trenzado con hojas"],
+    eyes: ["ojos violetas de párpados pesados", "ojos verdes esmeralda muy vivos", "ojos plateados brillantes", "ojos dispares: uno azul, uno violeta"]
+  },
+  "Tiefling": {
+    build: ["enjuta y larguirucha", "fibrosa e inquieta", "esbelta y grácil"],
+    hair: ["cabello negro aceitado recogido con severidad", "rizos de color azul medianoche", "cabello rojo sangre salvaje", "una melena blanca ceniza que enmarca sus cuernos"],
+    eyes: ["ojos del oro opaco de las monedas viejas", "ojos completamente rojos que retienen el brillo del fuego", "ojos de color cobre pulido", "ojos negros brillantes sin pupilas"]
+  }
+};
+
 function makeAppearance(pools: ReturnType<typeof poolsFor>, race: string, tags: string[], preset: Preset): string {
-  const build = pick(pools.build), hair = pick(pools.hair), eyes = pick(pools.eyes);
+  const vis = raceVisuals[race] || {};
+  const buildPool = vis.build || pools.build;
+  const hairPool = vis.hair || pools.hair;
+  const eyesPool = vis.eyes || pools.eyes;
+  
+  const build = pick(buildPool);
+  const hair = pick(hairPool);
+  const eyes = pick(eyesPool);
   const feature = pickFlavored(pools.feature, tags, "feature", preset);
+  
+  if (race === "Dracónido") {
+    return `dracónido de complexión ${build}, con ${hair} y ${eyes}. La mayoría recordará ${feature}`;
+  }
+  
   return `${String(race).toLowerCase()} de complexión ${build}, con ${hair} y ${eyes}. La mayoría recordará ${feature}`;
 }
 
